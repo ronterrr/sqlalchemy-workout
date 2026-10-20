@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
 from flask_marshmallow import Marshmallow
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 db = SQLAlchemy()
 ma = Marshmallow()
@@ -14,7 +15,7 @@ class Exercise(db.Model):
     equipment_needed = db.Column(db.Boolean, nullable=False, default = False)
 
     workout_exercises = db.relationship('WorkoutExercise', back_populates='exercise', cascade='all, delete-orphan')
-    workouts = db.relationship('Workout', secondary='workout_exercises', back_populates='exercises')
+    workouts = db.relationship('Workout', secondary='workout_exercises', back_populates='exercises', overlaps="workout_exercises")
 
     @validates('name', 'category')
     def str_validation(self, key, value):
@@ -31,7 +32,7 @@ class Workout(db.Model):
     notes = db.Column(db.String, nullable=True)
 
     workout_exercises = db.relationship('WorkoutExercise', back_populates='workout', cascade='all, delete-orphan')
-    exercises = db.relationship('Exercise', secondary='workout_exercises', back_populates='workouts')
+    exercises = db.relationship('Exercise', secondary='workout_exercises', back_populates='workouts', overlaps="workout_exercises")
 
 
 class WorkoutExercise(db.Model):
@@ -44,8 +45,8 @@ class WorkoutExercise(db.Model):
     sets = db.Column(db.Integer, nullable = False, default=1)
     duration_seconds = db.Column(db.Integer, nullable = False)
 
-    workout = db.relationship('Workout', back_populates='workout_exercises')
-    exercise = db.relationship('Exercise', back_populates='workout_exercises')
+    workout = db.relationship('Workout', back_populates='workout_exercises', overlaps="exercises, workouts")
+    exercise = db.relationship('Exercise', back_populates='workout_exercises', overlaps="exercises, workouts")
 
     @validates('reps', 'sets')
     def num_validation(self, key, value):
@@ -54,17 +55,17 @@ class WorkoutExercise(db.Model):
         return value
 
 
-class ExerciseSchema(ma.SQLAlchemyAutoSchema):
+class ExerciseSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Exercise
         load_instance = True
 
-class WorkoutExerciseSchema(ma.SQLAlchemyAutoSchema):
+class WorkoutExerciseSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = WorkoutExercise
         load_instance = True
 
-class WorkoutSchema(ma.SQLAlchemyAutoSchema):
+class WorkoutSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Workout
         load_instance = True
