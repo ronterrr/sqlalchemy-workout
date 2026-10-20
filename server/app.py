@@ -48,8 +48,14 @@ def post_workout():
         return make_response({'Error': str(e)}, 400)
 
 @app.route('/workouts/<id>', methods=['DELETE'])
-def delete_workout():
-    pass
+def delete_workout(id):
+    workout = Workout.query.get(id)
+    if not workout:
+        return make_response({'Error': 'workout not found'}, 404)
+
+    db.session.delete(workout)
+    db.session.commit()
+    return make_response({'message': 'workout deleted successfully'}, 200)
 
 
 @app.route('/exercises', methods=['GET'])
@@ -80,7 +86,13 @@ def post_exercise():
 
 @app.route('/exercises/<id>', methods=['DELETE'])
 def delete_exercise(id):
-    pass
+    exercise = Exercise.query.get(id)
+    if not exercise:
+        return make_response({'error': 'exercise not found'}, 404)
+
+    db.session.delete(exercise)
+    db.session.commit()
+    return make_response({'message': 'deletion successful'}, 200)
 
 @app.route('/workouts/<workout_id>/exercises/<exercise_id>/workout_exercises')
 def add_exercise_to_workout(workout_id, exercise_id):
