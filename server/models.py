@@ -14,6 +14,12 @@ class Exercise(db.Model):
     workout_exercises = db.relationship('WorkoutExercise', back_populates='exercise', cascade='all, delete-orphan')
     workouts = db.relationship('Workout', secondary='workout_exercises', back_populates='exercises')
 
+    @validates('name', 'category')
+    def str_validation(self, key, value):
+        if not value or not value.strip():
+            raise ValueError(f"{key} cannot be blank.")
+        return value.strip()
+
 class Workout(db.Model):
     __tablename__ = 'workouts'
 
@@ -38,3 +44,9 @@ class WorkoutExercise(db.Model):
 
     workout = db.relationship('Workout', back_populates='workout_exercises')
     exercise = db.relationship('Exercise', back_populates='workout_exercises')
+
+    @validates('reps', 'sets')
+    def num_validation(self, key, value):
+        if value is not None and value < 1:
+            raise ValueError(f"{key} must be at least 1")
+        return value
