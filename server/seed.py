@@ -34,7 +34,7 @@ with app.app_context():
 
     print("Seeding workouts...")
     workout_1 = Workout(
-        date=date(2026x, 6, 1),
+        date=date(2026, 6, 1),
         duration_minutes=45,
         notes="Morning workout"
     )
