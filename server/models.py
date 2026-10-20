@@ -1,7 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
+from flask_marshmallow import Marshmallow
 
 db = SQLAlchemy()
+ma = Marshmallow()
 
 class Exercise(db.Model):
     __tablename__ = 'exercises'
@@ -50,3 +52,19 @@ class WorkoutExercise(db.Model):
         if value is not None and value < 1:
             raise ValueError(f"{key} must be at least 1")
         return value
+
+
+class ExerciseSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Exercise
+        load_instance = True
+
+class WorkoutExerciseSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = WorkoutExercise
+        load_instance = True
+
+class WorkoutSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Workout
+        load_instance = True
